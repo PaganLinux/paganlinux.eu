@@ -1,0 +1,2 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>404 – PaganLinux</title><link rel="stylesheet" href="/assets/style.css"></head><body style="display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center">
+<div><h1 style="font-size:5rem;color:var(--primary);margin:0">404</h1><p style="color:var(--muted)">Strona nie znaleziona</p><a href="/" class="btn" style="margin-top:16px">Strona główna</a></div></body></html>
