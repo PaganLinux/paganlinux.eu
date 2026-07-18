@@ -117,6 +117,10 @@ elseif ($act === 'git') {
         $dir = '/var/www/html';
         $branch = S('git_branch', 'pl') ?: 'main';
     }
+    // Sanitize branch – if it contains slashes or special chars, use 'main'
+    if (str_contains($branch, '/') || str_contains($branch, '://') || strlen($branch) > 50) {
+        $branch = 'main';
+    }
     
     $token = S('git_token', 'pl') ?: '';
     
