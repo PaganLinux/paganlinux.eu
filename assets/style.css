@@ -6,7 +6,8 @@
   --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+main{flex:1}
 a{color:var(--primary);text-decoration:none}a:hover{opacity:0.85}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 
