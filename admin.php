@@ -74,7 +74,17 @@ if ($act === 'git') {
     $a = $in['action'] ?? 'status'; $t = $in['target'] ?? 'site';
     $dir = $t === 'packages' ? '/opt/packages' : '/var/www/html';
     
+    if ($a === 'clone') {
+        if (!is_dir("$dir/.git")) {
+            $url = 'https://github.com/PaganLinux/pagan-repo.git';
+            @shell_exec("/usr/bin/git clone $url $dir 2>&1");
+            @shell_exec("chown -R www-data:www-data $dir 2>&1");
+        }
+        header('Location: ?'); exit;
+    }
+    
     if ($a === 'status') {
+        if (!is_dir("$dir/.git")) { echo json_encode(['last'=>'','behind'=>'','target'=>$t,'norepo'=>true]); exit; }
         $c1 = trim(@shell_exec("cd $dir && /usr/bin/git status --short 2>&1"));
         $c2 = trim(@shell_exec("cd $dir && /usr/bin/git log -1 --format='%h %s (%cr)' 2>&1"));
         @shell_exec("cd $dir && /usr/bin/git fetch origin 2>&1");
@@ -83,6 +93,14 @@ if ($act === 'git') {
     } elseif ($a === 'pull') {
         $r = @shell_exec("cd $dir && /usr/bin/git pull origin main 2>&1");
         echo json_encode(['ok'=>1,'msg'=>trim($r)]);
+    } elseif ($a === 'build') {
+        $dir = '/opt/packages';
+        if (is_file("$dir/pagsync")) {
+            @shell_exec("cd $dir && python3 pagsync build all > /dev/null 2>&1 &");
+            echo json_encode(['ok'=>1,'msg'=>'Build started']);
+        } else {
+            echo json_encode(['ok'=>0,'msg'=>'pagsync not found in /opt/packages']);
+        }
     }
     exit;
 }
@@ -152,6 +170,9 @@ pre{background:#f9fafb;padding:10px;border-radius:7px;font-size:0.78rem;margin-t
 <p class="info" id="gi-pkg">⏳ Sprawdzanie...</p>
 <button class="btn" onclick="git('status','packages')">📊 Status</button>
 <button class="btn btn-p" onclick="git('pull','packages')">⬇ Pull</button>
+<button class="btn btn-p" style="background:var(--g)" onclick="gitClone()">📥 Klonuj repo</button>
+<button class="btn" style="background:#f59e0b;color:#fff;border:none" onclick="buildPkg()">🔨 Buduj pakiety</button>
+<p id="build-msg" style="margin-top:8px;font-size:0.85rem"></p>
 </div>
 <pre id="go"></pre>
 
@@ -211,7 +232,9 @@ pre{background:#f9fafb;padding:10px;border-radius:7px;font-size:0.78rem;margin-t
 <?php endif?>
 </main>
 <script>
-async function git(a,t){const o=document.getElementById('go');o.style.display='block';o.textContent='⏳…';try{const r=await fetch('?act=git',{method:'POST',body:JSON.stringify({action:a,target:t})});const d=await r.json();o.textContent=JSON.stringify(d,null,2);const el=t==='packages'?document.getElementById('gi-pkg'):document.getElementById('gi-site');if(!d.last||d.last.includes('fatal')){el.textContent='❌ Brak repo – sklonuj';el.className='warn'}else if(d.behind&&d.behind.trim()&&!d.behind.includes('fatal')){el.textContent='⚠️ Dostępne aktualizacje!';el.className='warn'}else{el.textContent='✅ '+d.last;el.className='info'}}catch(e){o.textContent=e.message}}
+async function git(a,t){const o=document.getElementById('go');o.style.display='block';o.textContent='⏳…';try{const r=await fetch('?act=git',{method:'POST',body:JSON.stringify({action:a,target:t})});const d=await r.json();o.textContent=JSON.stringify(d,null,2);const el=t==='packages'?document.getElementById('gi-pkg'):document.getElementById('gi-site');if(d.norepo){el.textContent='❌ Repo nie istnieje – kliknij 📥 Klonuj';el.className='warn'}else if(!d.last||d.last.includes('fatal')){el.textContent='❌ Błąd – sprawdź uprawnienia';el.className='warn'}else if(d.behind&&d.behind.trim()&&!d.behind.includes('fatal')){el.textContent='⚠️ '+d.behind.trim().split('\\n').length+' nowych – Pull + Buduj!';el.className='warn'}else{el.textContent='✅ '+d.last;el.className='info'}}catch(e){o.textContent=e.message}}
+function gitClone(){location.href='?act=git&action=clone&target=packages'}
+async function buildPkg(){const m=document.getElementById('build-msg');m.textContent='⏳ Budowanie...';m.style.color='var(--m)';try{const r=await fetch('?act=git',{method:'POST',body:JSON.stringify({action:'build'})});const d=await r.json();m.textContent=d.ok?'✅ Build rozpoczęty! Sprawdź logi na /build':'❌ Błąd';m.style.color=d.ok?'var(--g)':'var(--r)'}catch(e){m.textContent='❌ '+e.message}}
 git('status','site');
 </script>
 </body></html>
