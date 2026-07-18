@@ -108,29 +108,27 @@ elseif ($act === 'git') {
     header('Content-Type: application/json');
     $input = json_decode(file_get_contents('php://input'), true) ?? [];
     $action = $input['action'] ?? 'status';
-    $dir = '/var/www/html';
+    $target = $input['target'] ?? 'site';
     
-    $repo = S('git_repo', 'pl') ?: 'https://github.com/PaganLinux/paganlinux.eu.git';
-    $branch = S('git_branch', 'pl') ?: 'main';
-    $token = S('git_token', 'pl') ?: '';
-    
-    $authUrl = $repo;
-    if ($token && str_starts_with($repo, 'https://')) {
-        $authUrl = preg_replace('#https://#', "https://$token@", $repo);
+    if ($target === 'packages') {
+        $dir = '/opt/packages';
+        $branch = S('pkg_branch', 'pl') ?: 'main';
+    } else {
+        $dir = '/var/www/html';
+        $branch = S('git_branch', 'pl') ?: 'main';
     }
+    
+    $token = S('git_token', 'pl') ?: '';
     
     if ($action === 'status') {
         $c1 = trim(shell_exec("cd $dir && /usr/bin/git status --short 2>&1"));
         $c2 = trim(shell_exec("cd $dir && /usr/bin/git log -1 --format='%h %s (%cr)' 2>&1"));
         shell_exec("cd $dir && /usr/bin/git fetch origin 2>&1");
         $c3 = trim(shell_exec("cd $dir && /usr/bin/git log HEAD..origin/$branch --oneline 2>&1"));
-        echo json_encode(['changes'=>$c1,'last'=>$c2,'behind'=>$c3,'repo'=>$repo,'branch'=>$branch,'has_token'=>!empty($token)]);
+        echo json_encode(['changes'=>$c1,'last'=>$c2,'behind'=>$c3,'target'=>$target,'dir'=>$dir]);
     } elseif ($action === 'pull') {
         $r = shell_exec("cd $dir && /usr/bin/git pull origin $branch 2>&1");
-        echo json_encode(['ok'=>1,'msg'=>trim($r)]);
-    } elseif ($action === 'set_remote') {
-        shell_exec("cd $dir && /usr/bin/git remote set-url origin $authUrl 2>&1");
-        echo json_encode(['ok'=>1,'msg'=>'Remote updated']);
+        echo json_encode(['ok'=>1,'msg'=>trim($r),'target'=>$target]);
     }
     exit;
 }
