@@ -122,11 +122,11 @@ elseif ($act === 'git') {
     if ($action === 'status') {
         $c1 = trim(shell_exec("cd $dir && /usr/bin/git status --short 2>&1"));
         $c2 = trim(shell_exec("cd $dir && /usr/bin/git log -1 --format='%h %s (%cr)' 2>&1"));
-        shell_exec("cd $dir && /usr/bin/git fetch $authUrl $branch 2>&1");
-        $c3 = trim(shell_exec("cd $dir && /usr/bin/git log HEAD..FETCH_HEAD --oneline 2>&1"));
+        shell_exec("cd $dir && /usr/bin/git fetch origin 2>&1");
+        $c3 = trim(shell_exec("cd $dir && /usr/bin/git log HEAD..origin/$branch --oneline 2>&1"));
         echo json_encode(['changes'=>$c1,'last'=>$c2,'behind'=>$c3,'repo'=>$repo,'branch'=>$branch,'has_token'=>!empty($token)]);
     } elseif ($action === 'pull') {
-        $r = shell_exec("cd $dir && /usr/bin/git pull $authUrl $branch 2>&1");
+        $r = shell_exec("cd $dir && /usr/bin/git pull origin $branch 2>&1");
         echo json_encode(['ok'=>1,'msg'=>trim($r)]);
     } elseif ($action === 'set_remote') {
         shell_exec("cd $dir && /usr/bin/git remote set-url origin $authUrl 2>&1");
