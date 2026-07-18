@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin – PaganLinux</title><link rel="stylesheet" href="/assets/style.css"></head>
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin – PaganLinux</title><link rel="stylesheet" href="/assets/style.css?v=2"></head>
 <body style="display:flex;min-height:100vh">
 <aside style="width:240px;background:#fff;border-right:1px solid var(--border);padding:24px 0;flex-shrink:0">
 <div style="padding:0 24px 20px;font-size:1.05rem;font-weight:700;border-bottom:1px solid var(--border);margin-bottom:8px"><a href="/admin.php" style="color:var(--text);text-decoration:none">🐺 Admin</a></div>

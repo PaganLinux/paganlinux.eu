@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="<?=$L?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=S('site_title')?> – <?=S('site_desc')?></title>
-<link rel="stylesheet" href="/assets/style.css"></head><body>
+<link rel="stylesheet" href="/assets/style.css?v=2"></head><body>
 <header><nav><a href="/" class="logo">🐺 <?=h(S('site_title'))?></a>
 <div class="nav-links">
 <a href="/"><?=$L=='pl'?'Start':'Home'?></a>
